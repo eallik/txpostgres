@@ -394,6 +394,8 @@ class Connection(_PollingMixin):
     cursorFactory = Cursor
 
     def __init__(self, reactor=None):
+        self.cursorFactory = Cursor
+
         if not reactor:
             from twisted.internet import reactor
         self.reactor = reactor
