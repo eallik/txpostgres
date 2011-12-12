@@ -427,6 +427,9 @@ class Connection(_PollingMixin):
         if self._connection and not self._connection.closed:
             return defer.fail(AlreadyConnected())
 
+        if 'cursor_factory' in kwargs:
+            self.psycopg2CursorFactory = kwargs.pop('cursor_factory')
+
         kwargs['async'] = True
         try:
             self._connection = self.connectionFactory(*args, **kwargs)
@@ -476,7 +479,11 @@ class Connection(_PollingMixin):
         """
         Create an asynchronous cursor using :attr:`cursorFactory`.
         """
-        return self.cursorFactory(self._connection.cursor(), self)
+        if self.psycopg2CursorFactory:
+            kwargs = {'cursor_factory': self.psycopg2CursorFactory}
+        else:
+            kwargs = {}
+        return self.cursorFactory(self._connection.cursor(**kwargs), self)
 
     def runQuery(self, *args, **kwargs):
         """
